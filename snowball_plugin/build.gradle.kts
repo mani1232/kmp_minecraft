@@ -15,32 +15,49 @@ data class TargetSettings(
 )
 
 val targetsConfig = mapOf(
+    "v1.17" to TargetSettings("1.17-R0.1-SNAPSHOT", "1.17", "17"),
     "v1_20_1" to TargetSettings("1.20.1-R0.1-SNAPSHOT", "1.20", "17"),
-    "v1_21"   to TargetSettings("1.21.1-R0.1-SNAPSHOT", "1.21", "21")
+    "v1_21" to TargetSettings("1.21-R0.1-SNAPSHOT", "1.21", "21")
 )
 
 kotlin {
     sourceSets {
-        val commonMain by getting {
-            dependencies {
-                compileOnly("io.papermc.paper:paper-api:${targetsConfig.values.first().depVersion}")
-                compileOnly(libs.commandapi)
-                compileOnly(libs.commandapi.kotlin)
-            }
-        }
-
-        targetsConfig.forEach { (targetName, settings) ->
-            jvm(targetName) {
-                compilations.all { kotlinOptions.jvmTarget = settings.minJdkVersion }
-            }
-            getByName("${targetName}Main") {
-                dependsOn(commonMain)
+        targetsConfig.values.first().depVersion.also { lowestAPIVersion ->
+            val commonMain by getting {
                 dependencies {
-                    compileOnly("io.papermc.paper:paper-api:${settings.depVersion}")
+                    compileOnly(libs.commandapi)
+                    compileOnly(libs.commandapi.kotlin)
+                    // TODO Bug - we getting latest api version
+                    compileOnly("io.papermc.paper:paper-api:${lowestAPIVersion}")
+                }
+            }
+
+            configurations.getByName(commonMain.compileOnlyConfigurationName) {
+                resolutionStrategy {
+                    force("io.papermc.paper:paper-api:${lowestAPIVersion}")
+                }
+            }
+
+            targetsConfig.forEach { (targetName, settings) ->
+                jvm(targetName) {
+                    compilations.all { kotlinOptions.jvmTarget = settings.minJdkVersion }
+                }
+                getByName("${targetName}Main") {
+                    dependsOn(commonMain)
+                    dependencies {
+                        compileOnly("io.papermc.paper:paper-api:${settings.depVersion}")
+                    }
+                }
+
+                configurations.getByName("${targetName}CompileClasspath") {
+                    resolutionStrategy {
+                        force("io.papermc.paper:paper-api:${settings.depVersion}")
+                    }
                 }
             }
         }
     }
+
 }
 
 targetsConfig.forEach { (targetName, settings) ->

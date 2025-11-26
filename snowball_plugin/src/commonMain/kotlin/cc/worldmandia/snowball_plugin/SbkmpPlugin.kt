@@ -14,7 +14,7 @@ class SbkmpPlugin : JavaPlugin() {
         CommandAPICommand("pversion").withArguments(GreedyStringArgument("message")).withAliases("kmpversion")
             .withPermission(CommandPermission.OP).executes(CommandExecutor { sender, args ->
                 val message = args["message"] as String
-                broadcast(Component.text("Version: ${getVersion()}, message: $message"), CommandPermission.OP.permission.get())
+                broadcast(Component.text("Version: ${getVersion()}, message: $message"), CommandPermission.OP.toString())
             }).register()
     }
 

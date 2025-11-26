@@ -1,0 +1,14 @@
+[versions]
+kotlin = "2.0.21"
+shadow = "9.2.2"
+paperweight = "2.0.0-beta.19"
+commandapi = "11.0.0"
+
+[libraries]
+commandapi = { module = "dev.jorel:commandapi-paper-core", version.ref = "commandapi" }
+commandapi-kotlin = { module = "dev.jorel:commandapi-kotlin-paper", version.ref = "commandapi" }
+
+[plugins]
+kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+paperweight = { id = "io.papermc.paperweight.userdev", version.ref = "paperweight" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
